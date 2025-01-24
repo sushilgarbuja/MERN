@@ -5,46 +5,59 @@
 //json full form is javascript object notation
 //json le data bokcha
 require('dotenv').config()
-const express=require('express')
+const express = require('express')
 const connectToDatabase = require('./database')
 const Blog = require('./model/blogModel')
-const app=express()
+const app = express()
 //ghokne
 app.use(express.json())
 
+const { multer, storage } = require('./middleware/multerConfig')
+
+const upload = multer({ storage: storage })
 
 connectToDatabase()
 
 
-app.get("/",(req,res)=>{
+app.get("/", (req, res) => {
     res.status(200).json({
-        message:"hello world"
+        message: "hello world"
     })
 })
-app.get("/about",(req,res)=>{
+app.get("/about", (req, res) => {
     res.json({
-        message:"hello about"
+        message: "hello about"
     })
 })
-app.post("/blog",async (req,res)=>{
-    // const title=req.body.title
-    // const subtitle=req.body.subtitle
-    // const description=req.body.description
-    // const image=req.body.image
-    //destructure
-    console.log(req.body)
-    const {title,subtitle,description,image}=req.body
-    await Blog.create({
-        title:title,
-        subtitle:subtitle,
-        description:description,
-        image:image
-    })
+app.post("/blog", upload.single("image"), async (req, res) => {
+    const { title, subtitle, description } = req.body
+    // console.log(req.file)
+    const filename =req.file.filename
+    if (!title || !subtitle || !description) {
+        return res.status(400).json({
+            message: "Please provide all the required fields"
+        })
+    }
+    console.log(req.file)
     res.status(200).json({
-        message:"Blog api has been called"
+        message: "Blog api has been called"
+    })
+
+await Blog.create({
+    title: title,
+    subtitle: subtitle,
+    description: description,
+    image:filename
     })
 })
-app.listen(process.env.PORT,()=>{
+app.get("/blog",async(req,res)=>{
+   const blogs= await Blog.find() //it returns data in array
+   res.status(200).json({
+    message:"Blogs api has been called",
+    data: blogs
+   })
+})
+app.listen(process.env.PORT, () => {
     console.log("node js project has been started...")
 })
 
