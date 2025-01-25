@@ -37,6 +37,7 @@ app.post("/blog", upload.single("image"), async (req, res) => {
         return res.status(400).json({
             message: "Please provide all the required fields"
         })
+        
     }
     console.log(req.file)
     res.status(200).json({
@@ -57,6 +58,25 @@ app.get("/blog",async(req,res)=>{
     data: blogs
    })
 })
+app.get("/blog/:id",async(req,res)=>{
+    // console.log(req.params.id)
+    const id=req.params.id
+    // console.log(req.findById(id))
+    const blog=await Blog.findById(id)
+    if(!blog){
+        return res.status(404).json({
+            message:"Blog not found"
+        })
+    }
+    res.status(200).json({
+        message:"Blog api has been called",
+        data: blog
+       })
+
+})
+
+
+app.use(express.static("./storage"))
 app.listen(process.env.PORT, () => {
     console.log("node js project has been started...")
 })
