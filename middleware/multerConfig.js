@@ -5,7 +5,7 @@ const storage=multer.diskStorage({
         cb(null,"./storage")//cb(errror,success)
     },
     filename:function(req,file,cb){
-        cb(null,"Sushil-"+file.originalname)
+        cb(null,Date.now()+file.originalname)
     }
 })
 

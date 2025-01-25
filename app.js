@@ -15,10 +15,11 @@ app.use(express.json())
 const { multer, storage } = require('./middleware/multerConfig')
 
 const upload = multer({ storage: storage })
+const fs = require('fs')
 
 connectToDatabase()
 
-
+//for get
 app.get("/", (req, res) => {
     res.status(200).json({
         message: "hello world"
@@ -29,50 +30,102 @@ app.get("/about", (req, res) => {
         message: "hello about"
     })
 })
+//for create post
 app.post("/blog", upload.single("image"), async (req, res) => {
     const { title, subtitle, description } = req.body
     // console.log(req.file)
-    const filename =req.file.filename
+    const filename = req.file.filename
     if (!title || !subtitle || !description) {
         return res.status(400).json({
             message: "Please provide all the required fields"
         })
-        
+
     }
     console.log(req.file)
     res.status(200).json({
         message: "Blog api has been called"
     })
 
-await Blog.create({
-    title: title,
-    subtitle: subtitle,
-    description: description,
-    image:filename
+    await Blog.create({
+        title: title,
+        subtitle: subtitle,
+        description: description,
+        image: filename
     })
 })
-app.get("/blog",async(req,res)=>{
-   const blogs= await Blog.find() //it returns data in array
-   res.status(200).json({
-    message:"Blogs api has been called",
-    data: blogs
-   })
+//for get all blogs
+app.get("/blog", async (req, res) => {
+    const blogs = await Blog.find() //it returns data in array
+    res.status(200).json({
+        message: "Blogs api has been called",
+        data: blogs
+    })
 })
-app.get("/blog/:id",async(req,res)=>{
+//for get single blog
+app.get("/blog/:id", async (req, res) => {
     // console.log(req.params.id)
-    const id=req.params.id
+    const id = req.params.id
     // console.log(req.findById(id))
-    const blog=await Blog.findById(id)
-    if(!blog){
+    const blog = await Blog.findById(id)
+    if (!blog) {
         return res.status(404).json({
-            message:"Blog not found"
+            message: "Blog not found"
         })
     }
     res.status(200).json({
-        message:"Blog api has been called",
+        message: "Blog api has been called",
         data: blog
-       })
+    })
 
+})
+
+//for delete
+app.delete("/blog/:id", async (req, res) => {
+    const id = req.params.id
+    const blog = await Blog.findById(id)
+    const imageName = blog.image
+    fs.unlink(`./storage/${imageName}`, (err) => {
+        if (err) {
+            console.log('File deleted!')
+        }
+        else {
+            console.log('File not found, so not deleting.')
+        }
+    });
+    await Blog.findByIdAndDelete(id)
+
+    res.status(200).json({
+        message: "Blog has been deleted"
+    })
+})
+
+//blog edit
+app.patch('/blog/:id', upload.single("image"), async (req, res) => {
+    const id = req.params.id
+    const { title, subtitle, description } = req.body
+    let imageName
+    if (req.file) {
+        imageName = req.file.filename
+        const blog = await Blog.findById(id)
+        const oldImageName = blog.image
+        fs.unlink(`./storage/${oldImageName}`, (err) => {
+            if (err) {
+                console.log('File deleted!')
+            }
+            else {
+                console.log('File not found, so not deleting.')
+            }
+        })
+    }
+    await Blog.findByIdAndUpdate(id, {
+        title: title,
+        subtitle: subtitle,
+        description: description,
+        image: imageName
+    })
+    res.status(200).json({
+        message: "Blog has been updated"
+    })
 })
 
 
