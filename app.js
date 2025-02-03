@@ -16,6 +16,16 @@ const { multer, storage } = require('./middleware/multerConfig')
 
 const upload = multer({ storage: storage })
 const fs = require('fs')
+const cors = require('cors')
+
+
+//cors is used to allow the request from different domains
+app.use(cors(
+    {
+        origin: "http://localhost:5173/"
+    }
+)
+)
 
 connectToDatabase()
 
@@ -43,7 +53,7 @@ app.post("/blog", upload.single("image"), async (req, res) => {
     }
     console.log(req.file)
     res.status(200).json({
-        message: "Blog api has been called"
+        message: "Blog has been created successfully",
     })
 
     await Blog.create({
