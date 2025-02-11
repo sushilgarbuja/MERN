@@ -8,7 +8,7 @@ const Schema=mongoose.Schema
 const blogSchema=new Schema({
     title:{
         type:String,
-        unique:true
+        // unique:true
     },
     subtitle:{
         type:String

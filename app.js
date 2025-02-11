@@ -44,13 +44,18 @@ app.get("/about", (req, res) => {
 app.post("/blog", upload.single("image"), async (req, res) => {
     const { title, subtitle, description } = req.body
     // console.log(req.file)
-    const filename = req.file.filename
-    if (!title || !subtitle || !description) {
-        return res.status(400).json({
-            message: "Please provide all the required fields"
-        })
-
+    let filename;
+    if (req.file){
+        filename = "http://localhost:3000/"+req.file.filename
+    }else{
+        filename = "https://cdn.mos.cms.futurecdn.net/i26qpaxZhVC28XRTJWafQS.jpeg"
     }
+    // if (!title || !subtitle || !description) {
+    //     return res.status(400).json({
+    //         message: "Please provide all the required fields"
+    //     })
+
+    // }
     console.log(req.file)
     res.status(200).json({
         message: "Blog has been created successfully",
@@ -115,7 +120,7 @@ app.patch('/blog/:id', upload.single("image"), async (req, res) => {
     const { title, subtitle, description } = req.body
     let imageName
     if (req.file) {
-        imageName = req.file.filename
+        imageName = "http://localhost:3000/"+req.file.filename
         const blog = await Blog.findById(id)
         const oldImageName = blog.image
         fs.unlink(`./storage/${oldImageName}`, (err) => {
