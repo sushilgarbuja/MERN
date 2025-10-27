@@ -8,6 +8,7 @@ require('dotenv').config()
 const express = require('express')
 const connectToDatabase = require('./database')
 const Blog = require('./model/blogModel')
+
 const app = express()
 //ghokne
 app.use(express.json())
@@ -108,7 +109,6 @@ app.delete("/blog/:id", async (req, res) => {
         }
     });
     await Blog.findByIdAndDelete(id)
-
     res.status(200).json({
         message: "Blog has been deleted"
     })
