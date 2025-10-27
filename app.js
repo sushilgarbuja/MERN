@@ -23,7 +23,7 @@ const cors = require('cors')
 //cors is used to allow the request from different domains
 app.use(cors(
     {
-        origin: ["http://localhost:5173","https://mern3-node-ypez.onrender.com"]
+        origin: ["http://localhost:5173","https://sushilblog.vercel.app"]
     }
 )
 )
